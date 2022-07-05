@@ -41,7 +41,17 @@ MAP KEYS TERMINATED BY '#'
 LINES TERMINATED BY '\n';
 LOAD DATA LOCAL INPATH 'data1.csv' INTO TABLE tbl1;
 
-/*
-    >>> Escriba su respuesta a partir de este punto <<<
-*/
 
+DROP TABLE IF EXISTS data;
+
+CREATE TABLE data AS 
+SELECT fecha, letra, COUNT(*)
+FROM(
+    SELECT YEAR(c4) AS fecha, letra 
+    FROM tbl0 LATERAL VIEW EXPLODE(c5) letras AS letra
+    ) t2
+GROUP BY fecha, letra ORDER BY fecha, letra;
+
+INSERT OVERWRITE LOCAL DIRECTORY 'output'
+ROW FORMAT DELIMITED FIELDS TERMINATED BY ','
+SELECT * FROM data;
