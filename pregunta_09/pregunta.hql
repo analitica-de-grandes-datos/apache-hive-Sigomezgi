@@ -45,4 +45,18 @@ LOAD DATA LOCAL INPATH 'data1.csv' INTO TABLE tbl1;
 /*
     >>> Escriba su respuesta a partir de este punto <<<
 */
+DROP TABLE IF EXISTS data;
 
+CREATE TABLE data AS 
+SELECT c1, key, value
+FROM tbl1 LATERAL VIEW EXPLODE(c4) latview AS key,value;
+
+DROP TABLE IF EXISTS data_1;
+
+CREATE TABLE data_1 AS 
+SELECT data.c1, key, value
+FROM tbl0 JOIN data  ON (data.c1 = tbl0.c1 AND data.key = tbl0.c2);
+
+INSERT OVERWRITE LOCAL DIRECTORY 'output'
+ROW FORMAT DELIMITED FIELDS TERMINATED BY ','
+SELECT * FROM data_1;
